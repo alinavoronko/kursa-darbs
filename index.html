@@ -8,6 +8,34 @@
   </head>
   <body>
     <div id="app"></div>
+    <div class="wasm-impl">
+      <h2>WASM Implementation</h2>
+      <h1>Matrix Multiplication</h1>
+
+      <label for="matrix1">Matrix 1:</label><br />
+      <textarea id="matrix1" rows="2" cols="10"></textarea><br />
+      <label for="matrix2">Matrix 2:</label><br />
+      <textarea id="matrix2" rows="2" cols="10"></textarea><br />
+
+      <button id="js-calc">Calculate</button>
+
+      <h2>Result:</h2>
+      <div id="result"></div>
+    </div>
+    <!-- <div class="js-impl">
+      <h2>JavaScript Implementation</h2>
+    </div> -->
     <script type="module" src="/src/main.ts"></script>
+    <!-- <script type="module" src="func.js"></script> -->
+    <script type="module">
+      // Import the function
+      import { multiplyMatrices } from './func.js';
+
+      // Get a reference to the button
+      const button = document.getElementById('js-calc');
+
+      // Set the imported function as the click handler for the button
+      button.addEventListener('click', multiplyMatrices);
+  </script>
   </body>
 </html>

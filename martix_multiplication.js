@@ -1,9 +1,8 @@
 export function performMatrixMultiplication(matrix1, matrix2) {
-    // console.time("Matrix Multiplication");
     const result = [];
-    const m = matrix1.length;
-    const n = matrix2[0].length;
-    const p = matrix2.length;
+    const m = matrix1.length; //rows of matrix1
+    const n = matrix2[0].length; //cols of matrix1
+    const p = matrix2.length; //rows of matrix2
 
     for (let i = 0; i < m; i++) {
       result.push([]);
@@ -14,6 +13,6 @@ export function performMatrixMultiplication(matrix1, matrix2) {
         }
       }
     }
-    // console.timeEnd("Matrix Multiplication");
+    console.log(result);
     return result;
   }

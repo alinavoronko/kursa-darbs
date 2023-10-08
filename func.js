@@ -1,6 +1,6 @@
-import { performMatrixMultiplication } from './martix_multiplication.js';
+// import { performMatrixMultiplication } from './martix_multiplication.js';
 
-export function multiplyMatrices() {
+export function getMatrixInput() {
     // Get the input matrices as strings from the text areas
     const matrix1Str = document.getElementById("matrix1").value;
     const matrix2Str = document.getElementById("matrix2").value;
@@ -16,14 +16,15 @@ export function multiplyMatrices() {
       );
       return;
     }
+    return [matrix1, matrix2];
 
-    console.time("Matrix Multiplication");
-    // Perform matrix multiplication
-    const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
-    console.timeEnd("Matrix Multiplication");
+    // console.time("Matrix Multiplication");
+    // // Perform matrix multiplication
+    // const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
+    // console.timeEnd("Matrix Multiplication");
 
-    // Display the result
-    displayMatrix(resultMatrix, "result");
+    // // Display the result
+    // displayMatrix(resultMatrix, "result");
   }
 
   function parseMatrix(matrixStr) {
@@ -56,7 +57,7 @@ export function multiplyMatrices() {
 //     return result;
 //   }
 
-  function displayMatrix(matrix, elementId) {
+  export function displayMatrix(matrix, elementId) {
     const resultElement = document.getElementById(elementId);
     resultElement.innerHTML = "";
 

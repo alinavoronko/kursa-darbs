@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sample Wasm</title>
+    <title>Performance Testing</title>
   </head>
   <body>
     <div id="app"></div>
-    <div class="wasm-impl">
-      <h2>WASM Implementation</h2>
-      <h1>Matrix Multiplication</h1>
+    <!-- TODO: getInput() = make distinguishable for each impl -->
+    <!-- <div class="js-impl">
+      <h1>[JS] Matrix Multiplication</h1>
 
       <label for="matrix1">Matrix 1:</label><br />
       <textarea id="matrix1" rows="2" cols="10"></textarea><br />
@@ -20,22 +20,52 @@
       <button id="js-calc">Calculate</button>
 
       <h2>Result:</h2>
-      <div id="result"></div>
-    </div>
-    <!-- <div class="js-impl">
-      <h2>JavaScript Implementation</h2>
+      <div id="js-result"></div>
     </div> -->
-    <script type="module" src="/src/main.ts"></script>
-    <!-- <script type="module" src="func.js"></script> -->
+
+    <div class="wasm-impl">
+      <h1>[WASM] Matrix Multiplication</h1>
+
+      <label for="matrix1">Matrix 1:</label><br />
+      <textarea id="matrix1" rows="2" cols="10"></textarea><br />
+      <label for="matrix2">Matrix 2:</label><br />
+      <textarea id="matrix2" rows="2" cols="10"></textarea><br />
+
+      <button id="wasm-calc">Calculate</button>
+
+      <h2>Result:</h2>
+      <div id="wasm-result"></div>
+    </div>
+
+    <!-- <script type="module" src="/src/main.ts"></script> -->
+    <!-- <script type="module" src="martix_multiplication.js"></script> -->
     <script type="module">
-      // Import the function
-      import { multiplyMatrices } from './func.js';
+      import { getMatrixInput, displayMatrix } from "./func.js";
+      import { performMatrixMultiplication } from "./martix_multiplication.js";
+      import init, { perform_matrix_multiplication } from "@rust/sample-module";
 
-      // Get a reference to the button
-      const button = document.getElementById('js-calc');
+      (async () => {
+        //TODO: inside main.ts & DOM content loaded -> then add handler
+        await init();
+        function handleWASMMatrixMul() {
+          const [matrix1, matrix2] = getMatrixInput();
+          console.time("WASM Matrix Multiplication");
+          const resultMatrix = perform_matrix_multiplication(matrix1, matrix2);
+          console.timeEnd("WASM Matrix Multiplication");
+          displayMatrix(resultMatrix, "wasm-result");
+        }
+        const button_wasm = document.getElementById("wasm-calc");
+        button_wasm.addEventListener("click", handleWASMMatrixMul);
+      })();
 
-      // Set the imported function as the click handler for the button
-      button.addEventListener('click', multiplyMatrices);
-  </script>
+      // function handleJsMatrixMul() {
+      //   const [matrix1, matrix2] = getMatrixInput();
+      //   const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
+      //   displayMatrix(resultMatrix, "js-result");
+      // }
+
+      // const button = document.getElementById("js-calc");
+      // button.addEventListener("click", handleJsMatrixMul);
+    </script>
   </body>
 </html>

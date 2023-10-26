@@ -9,7 +9,7 @@
   <body>
     <div id="app"></div>
     <!-- TODO: getInput() = make distinguishable for each impl -->
-    <!-- <div class="js-impl">
+    <div class="js-impl">
       <h1>[JS] Matrix Multiplication</h1>
 
       <label for="matrix1">Matrix 1:</label><br />
@@ -21,7 +21,7 @@
 
       <h2>Result:</h2>
       <div id="js-result"></div>
-    </div> -->
+    </div>
 
     <div class="wasm-impl">
       <h1>[WASM] Matrix Multiplication</h1>
@@ -48,24 +48,37 @@
         //TODO: inside main.ts & DOM content loaded -> then add handler
         await init();
         function handleWASMMatrixMul() {
-          const [matrix1, matrix2] = getMatrixInput();
-          console.time("WASM Matrix Multiplication");
+          const [matrix1, matrix2] = getMatrixInput("wasm-impl");
+          // console.time("WASM Matrix Multiplication");  // potentially depends on event loop - neder
+          const start_time = performance.now();
           const resultMatrix = perform_matrix_multiplication(matrix1, matrix2);
-          console.timeEnd("WASM Matrix Multiplication");
+          const end_time = performance.now();
+          const measured_time = end_time - start_time;
+
+          // console.timeEnd("WASM Matrix Multiplication");
           displayMatrix(resultMatrix, "wasm-result");
         }
         const button_wasm = document.getElementById("wasm-calc");
         button_wasm.addEventListener("click", handleWASMMatrixMul);
       })();
 
-      // function handleJsMatrixMul() {
-      //   const [matrix1, matrix2] = getMatrixInput();
-      //   const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
-      //   displayMatrix(resultMatrix, "js-result");
-      // }
+      function handleJsMatrixMul() {
+        const [matrix1, matrix2] = getMatrixInput("js-impl");
+        // will retrieve it
+        // console.time("JS Matrix Multiplication");
+        const startTime = performance.now();
+        const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
+        const endTime = performance.now();
+        const measuredTime = endTime - startTime;
 
-      // const button = document.getElementById("js-calc");
-      // button.addEventListener("click", handleJsMatrixMul);
+        window.onCustomEvent(measuredTime);
+
+        // console.timeEnd("JS Matrix Multiplication");
+        displayMatrix(resultMatrix, "js-result");
+      }
+
+      const button = document.getElementById("js-calc");
+      button.addEventListener("click", handleJsMatrixMul);
     </script>
   </body>
 </html>

@@ -1,9 +1,11 @@
 // import { performMatrixMultiplication } from './martix_multiplication.js';
 
-export function getMatrixInput() {
+export function getMatrixInput(scope) {
     // Get the input matrices as strings from the text areas
-    const matrix1Str = document.getElementById("matrix1").value;
-    const matrix2Str = document.getElementById("matrix2").value;
+    console.log(`.${scope} matrix1`)
+    const matrix1Str = document.querySelector(`.${scope} #matrix1`).value;
+    const matrix2Str = document.querySelector(`.${scope} #matrix2`).value;
+    // const matrix2Str = document.getElementById("matrix2").value;
 
     // Parse the input matrices
     const matrix1 = parseMatrix(matrix1Str);
@@ -17,14 +19,6 @@ export function getMatrixInput() {
       return;
     }
     return [matrix1, matrix2];
-
-    // console.time("Matrix Multiplication");
-    // // Perform matrix multiplication
-    // const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
-    // console.timeEnd("Matrix Multiplication");
-
-    // // Display the result
-    // displayMatrix(resultMatrix, "result");
   }
 
   function parseMatrix(matrixStr) {

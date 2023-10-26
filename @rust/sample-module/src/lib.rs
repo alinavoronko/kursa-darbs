@@ -1,6 +1,5 @@
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
-
 // #[wasm_bindgen]
 // extern "C" {
 //     #[wasm_bindgen(js_namespace = console)]
@@ -108,9 +107,9 @@ pub struct MyMatrix(pub Vec<Vec<i32>>);
 // struct MyMatrix(pub Vec<Vec<i32>>);
 
 #[wasm_bindgen]
-pub fn perform_matrix_multiplication(_matrix1: JsValue, _matrix2: JsValue) -> JsValue {
-    // let matrix1: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix1.into()).unwrap().0;
-    // let matrix2: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix2.into()).unwrap().0;
+pub fn perform_matrix_multiplication(matrix1: JsValue, matrix2: JsValue) -> JsValue {
+    let matrix1: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix1.into()).unwrap().0;
+    let matrix2: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix2.into()).unwrap().0;
 
     // let m = matrix1.len();
     // let p = matrix2.len();
@@ -127,11 +126,26 @@ pub fn perform_matrix_multiplication(_matrix1: JsValue, _matrix2: JsValue) -> Js
     //     }
     // }
 //TODO: rewrite the implementation  so that it does the multiplication correctly
-    let mut result: Vec<Vec<i32>> = vec![];
-    result.push(vec![3, 4]);
-    result.push(vec![5, 11]);
+    // let mut result: Vec<Vec<i32>> = vec![];
+    // result.push(vec![3, 4]);
+    // result.push(vec![5, 11]);
+
+        // Perform matrix multiplication
+        let m = matrix1.len();
+        let n = matrix2[0].len();
+        let p = matrix2.len();
+
+        let mut result = vec![vec![0; n]; m];
+        for i in 0..m {
+            for j in 0..n {
+                for k in 0..p {
+                    result[i][j] += matrix1[i][k] * matrix2[k][j];
+                }
+            }
+        }
 
     let result_matrix = MyMatrix(result);
     let wrapped: Result<JsValue, serde_wasm_bindgen::Error> = serde_wasm_bindgen::to_value(&result_matrix).into();
     wrapped.unwrap()
+
 }

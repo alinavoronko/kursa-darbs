@@ -3,115 +3,117 @@ const fs = require("fs");
 const matrixGen = require("./matrix-generator");
 
 // const path = require("path");
-const matrixCount = 2;
+const matrixCount = 13;
 const matrixSize = 4;
+const ignoreFirstN = 10;
 
 (async () => {
-  // Load the matrix data from the JSON file
-  // const jsonFilePath = path.join(__dirname, "test-data", "matrix_input.json");
-
-  // const rawData = fs.readFileSync(jsonFilePath);
-  // const inputData = JSON.parse(rawData);
   let inputData = [];
-  for (let i = 0; i< matrixCount; i++){
-    // const [matrix1, matrix2] = generateMatrixPairs(matrixCount);
-    inputData.push(matrixGen.generateMatrixPairs(matrixCount));
+  for (let i = 0; i < matrixCount; i++) {
+    inputData.push(matrixGen.generateMatrixPairs(matrixSize));
   }
-  console.log(inputData);
+  console.log(JSON.stringify(inputData));
+
+  await runTestSuite("js", inputData);
+  await runTestSuite("wasm", inputData);
 
   // Generate 100 matrices that will be used for tests;
 
+  // const browser = await puppeteer.launch({ headless: false });
 
+  // const page = await browser.newPage();
+
+  // const timeStorage = [];
+
+  // await page.exposeFunction("onCustomEvent", (data) => {
+  //   timeStorage.push(data);
+  // });
+
+  // await page.goto("http://127.0.0.1:5173/");
+
+  // for (let i = 0; i < inputData.length; i++){
+  //   const input = inputData[i];
+  //   await testInput(page, input, 'js');
+  // }
+
+  // await browser.close();
+
+  // console.log("JS time results:");
+  // console.log(timeStorage);
+
+  // // Close the browser
+  // await browser.close();
+})();
+
+async function runTestSuite(impl, inputData) {
   const browser = await puppeteer.launch({ headless: false });
-
-  // Create a new page
   const page = await browser.newPage();
 
-  // Navigate to the specified URL
-  const timeStorage = [];
+  let timeStorage = [];
 
   await page.exposeFunction("onCustomEvent", (data) => {
     timeStorage.push(data);
   });
 
-//   await page.evaluateOnNewDocument(() => {
-//     window.addEventListener('thingie-js-end', ({ detail }) => {
-//         window.onCustomEvent(detail);
-//     });
-// });
-
-  await page.goto("http://127.0.0.1:5173/");
-
-
-  // await page.evaluate(function () {
-  //   console.log("Hello world 234");
-
-  //   document.addEventListener("thingie-js-end", (e) => {
-  //     console.log("Hello world");
-  //     timeStorage.push(e.detail.measuredTime);
-  //   });
-
-  //   return;
-  // });
-
-  {
-    const performanceMetrics = await page.metrics();
-
-    console.log("Initial Performance Metrics:");
-    console.log(performanceMetrics);
-  }
+  await page.goto("http://127.0.0.1:4173/");
+  // await page.goto("http://127.0.0.1:5173/");
 
   for (let i = 0; i < inputData.length; i++) {
     const input = inputData[i];
-    // Input matrix1 and matrix2 values
-    await page.type("#matrix1",  matrixGen.serializeMatrix(input.matrix1));
-    await page.type("#matrix2", matrixGen.serializeMatrix(input.matrix2));
-
-    // Start DevTools tracing
-    await page.tracing.start({
-      path: `trace_input_${i}.json`,
-      screenshots: true,
-    });
-
-    // Record the start time
-    // Considers also rendering
-    const startTime = performance.now();
-
-    await page.click("#js-calc");
-
-    await page.waitForSelector("#js-result");
-
-    const result = await page.evaluate(() => {
-      return document.querySelector("#js-result").textContent;
-    });
-
-    await page.tracing.stop();
-
-    const endTime = performance.now();
-
-    // Calculate the execution time in milliseconds
-    const executionTime = endTime - startTime;
-
-    // Output the result, execution time, and performance metrics
-    console.log("Result:");
-    console.log(result);
-
-    console.log("Execution Time (ms):");
-    console.log(executionTime);
-
-    const performanceMetrics = await page.metrics();
-
-    console.log("Performance Metrics:");
-    console.log(performanceMetrics);
-
-    // Clear the textareas for the next iteration
-    await page.$eval("#matrix1", (input) => (input.value = ""));
-    await page.$eval("#matrix2", (input) => (input.value = ""));
+    let res = await testInput(page, input, impl);
+    timeStorage[i] = {...res, ...timeStorage[i]};
   }
 
-  console.log("Received time results:");
-  console.log(timeStorage);
+  console.log(`${impl.toUpperCase()} time results:`);
+  if(matrixCount > ignoreFirstN ) {
+    timeStorage.splice(0,ignoreFirstN);
+  }
+  console.log(JSON.stringify(timeStorage));
 
   // Close the browser
   await browser.close();
-})();
+}
+
+async function testInput(page, input, impl) {
+  const initialHeapSize = (await page.metrics()).JSHeapUsedSize;
+
+  await page.type(
+    `.${impl}-impl #matrix1`,
+    matrixGen.serializeMatrix(input.matrix1)
+  );
+  await page.type(
+    `.${impl}-impl #matrix2`,
+    matrixGen.serializeMatrix(input.matrix2)
+  );
+
+  // alternative: measure execution time including render of the results
+  const startTime = performance.now();
+
+  await page.click(`#${impl}-calc`);
+
+  await page.waitForSelector(`#${impl}-result`);
+
+  const endTime = performance.now();
+
+  const timeWithRender = endTime - startTime;
+
+  // console.log(`Execution Time (ms) with result render: ${executionTime}`);
+
+  const performanceMetrics = await page.metrics();
+  const heapSize = performanceMetrics.JSHeapUsedSize ;
+  // const heapMB = performanceMetrics.JSHeapUsedSize / (1024 * 1024);
+  const deltaHeapSize = performanceMetrics.JSHeapUsedSize - initialHeapSize;
+  const testRunResult = {
+    heapSize,
+    deltaHeapSize,
+    timeWithRender
+  }
+  // console.log(JSON.stringify(testRunResult))
+  // console.log("Heap size (MB): ", heapMB);
+  // console.log("Delta heap size (MB): ", deltaHeap / (1024 * 1024));
+
+  // Clear the textareas for the next iteration
+  await page.$eval(`.${impl}-impl #matrix1`, (input) => (input.value = ""));
+  await page.$eval(`.${impl}-impl #matrix2`, (input) => (input.value = ""));
+  return testRunResult;
+}

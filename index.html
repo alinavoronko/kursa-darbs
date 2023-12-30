@@ -45,15 +45,25 @@
       import init, { perform_matrix_multiplication } from "@rust/sample-module";
 
       (async () => {
-        //TODO: inside main.ts & DOM content loaded -> then add handler
-        await init();
+        const wasm = await init();
         function handleWASMMatrixMul() {
           const [matrix1, matrix2] = getMatrixInput("wasm-impl");
           // console.time("WASM Matrix Multiplication");  // potentially depends on event loop - neder
+          const start_memory = wasm.memory.buffer.byteLength;
           const start_time = performance.now();
           const resultMatrix = perform_matrix_multiplication(matrix1, matrix2);
           const end_time = performance.now();
+          const end_memory = wasm.memory.buffer.byteLength;
           const measured_time = end_time - start_time;
+
+          const mem_diff = start_memory - end_memory;
+
+          // console.log('Mem diff', mem_diff);
+          // console.log(`Allocated ArrayBuffer: ${start_memory / 1024 / 1024}MB`);
+
+          if (window.onCustomEvent !== undefined) {
+            window.onCustomEvent({measuredTime: measured_time, startMemory: start_memory, memoryDiff: mem_diff});
+          }
 
           // console.timeEnd("WASM Matrix Multiplication");
           displayMatrix(resultMatrix, "wasm-result");
@@ -71,7 +81,9 @@
         const endTime = performance.now();
         const measuredTime = endTime - startTime;
 
-        window.onCustomEvent(measuredTime);
+        if (window.onCustomEvent !== undefined) {
+          window.onCustomEvent({measuredTime});
+        }
 
         // console.timeEnd("JS Matrix Multiplication");
         displayMatrix(resultMatrix, "js-result");

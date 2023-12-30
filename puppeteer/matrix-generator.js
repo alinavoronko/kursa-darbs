@@ -16,7 +16,7 @@ function generateMatrix(row, col) {
   for (let i = 0; i < row; i++) {
     matrix[i] = [];
     for (let j = 0; j < col; j++) {
-      matrix[i][j] = getRandomInt(1, 99999);
+      matrix[i][j] = getRandomInt(1, 100);
     }
   }
   return matrix;
@@ -39,51 +39,6 @@ function generateMatrixPairs(dim) {
     // return [matrix1, matrix2];
 }
 
-
-/**
- * function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function generateMatrix(row, col) {
-  let matrix = [];
-  for (let i = 0; i < row; i++) {
-    matrix[i] = [];
-    for (let j = 0; j < col; j++) {
-      matrix[i][j] = getRandomInt(1, 99999);
-    }
-  }
-  return matrix;
-}
-
-//console.log(generateMatrix(4,4));
-let genMatrix = generateMatrix(4,4);
-
-function serializeMatrix(matrix) {
-	let result = "";
-  for (let i = 0; i < matrix.length; i++) {
-    for (let j = 0; j < matrix[i].length; j++) {
-      result = result + matrix[i][j];
-      if(j < matrix[i].length - 1) {
-      result = result + ","
-      }
-    }
-     result = result + "\n"
-  }
-  return result;
-}
-
-function holdMyBeer(matrix) {
-	return matrix.map(row => row.join(",")).join("\n");
-}
-
-console.log(serializeMatrix(genMatrix));
-
-console.log('Beer: ', holdMyBeer(genMatrix));
-
- */
 
 module.exports = {
     getRandomInt,

@@ -29,7 +29,6 @@ use wasm_bindgen::JsValue;
 //     }
 // }
 
-
 // #[wasm_bindgen]
 // pub fn perform_matrix_multiplication(
 //     matrix1: Vec<Vec<i32>>,
@@ -52,7 +51,6 @@ use wasm_bindgen::JsValue;
 //     result
 // }
 
-
 // #[wasm_bindgen]
 // pub fn perform_matrix_multiplication(
 //     matrix1: Vec<i32>,
@@ -73,8 +71,6 @@ use wasm_bindgen::JsValue;
 
 //     result
 // }
-
-
 
 // #[wasm_bindgen]
 // pub fn perform_matrix_multiplication(
@@ -98,8 +94,6 @@ use wasm_bindgen::JsValue;
 //     result
 // }
 
-
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
@@ -108,8 +102,12 @@ pub struct MyMatrix(pub Vec<Vec<i32>>);
 
 #[wasm_bindgen]
 pub fn perform_matrix_multiplication(matrix1: JsValue, matrix2: JsValue) -> JsValue {
-    let matrix1: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix1.into()).unwrap().0;
-    let matrix2: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix2.into()).unwrap().0;
+    let matrix1: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix1.into())
+        .unwrap()
+        .0;
+    let matrix2: Vec<Vec<i32>> = serde_wasm_bindgen::from_value::<MyMatrix>(matrix2.into())
+        .unwrap()
+        .0;
 
     // let m = matrix1.len();
     // let p = matrix2.len();
@@ -125,27 +123,30 @@ pub fn perform_matrix_multiplication(matrix1: JsValue, matrix2: JsValue) -> JsVa
     //         }
     //     }
     // }
-//TODO: rewrite the implementation  so that it does the multiplication correctly
+    //TODO: rewrite the implementation  so that it does the multiplication correctly
     // let mut result: Vec<Vec<i32>> = vec![];
     // result.push(vec![3, 4]);
     // result.push(vec![5, 11]);
 
-        // Perform matrix multiplication
-        let m = matrix1.len();
-        let n = matrix2[0].len();
-        let p = matrix2.len();
+    // Perform matrix multiplication
+    // matrix1: [[65509,79606]]
+    // matrix2: [[88892],[62451]]
 
-        let mut result = vec![vec![0; n]; m];
-        for i in 0..m {
-            for j in 0..n {
-                for k in 0..p {
-                    result[i][j] += matrix1[i][k] * matrix2[k][j];
-                }
+    let m = matrix1.len(); // 1
+    let n = matrix2[0].len(); // 1
+    let p = matrix2.len(); // 2
+
+    let mut result = vec![vec![0; n]; m]; // 1x1
+    for i in 0..m {
+        for j in 0..n {
+            for k in 0..p { // 2 times
+                result[i][j] += matrix1[i][k] * matrix2[k][j];
             }
         }
+    }
 
     let result_matrix = MyMatrix(result);
-    let wrapped: Result<JsValue, serde_wasm_bindgen::Error> = serde_wasm_bindgen::to_value(&result_matrix).into();
+    let wrapped: Result<JsValue, serde_wasm_bindgen::Error> =
+        serde_wasm_bindgen::to_value(&result_matrix).into();
     wrapped.unwrap()
-
 }

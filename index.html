@@ -37,8 +37,6 @@
       <div id="wasm-result"></div>
     </div>
 
-    <!-- <script type="module" src="/src/main.ts"></script> -->
-    <!-- <script type="module" src="martix_multiplication.js"></script> -->
     <script type="module">
       import { getMatrixInput, displayMatrix } from "./func.js";
       import { performMatrixMultiplication } from "./martix_multiplication.js";
@@ -48,24 +46,18 @@
         const wasm = await init();
         function handleWASMMatrixMul() {
           const [matrix1, matrix2] = getMatrixInput("wasm-impl");
-          // console.time("WASM Matrix Multiplication");  // potentially depends on event loop - neder
           const start_memory = wasm.memory.buffer.byteLength;
           const start_time = performance.now();
           const resultMatrix = perform_matrix_multiplication(matrix1, matrix2);
           const end_time = performance.now();
           const end_memory = wasm.memory.buffer.byteLength;
           const measured_time = end_time - start_time;
-
           const mem_diff = start_memory - end_memory;
-
-          // console.log('Mem diff', mem_diff);
-          // console.log(`Allocated ArrayBuffer: ${start_memory / 1024 / 1024}MB`);
 
           if (window.onCustomEvent !== undefined) {
             window.onCustomEvent({measuredTime: measured_time, startMemory: start_memory, memoryDiff: mem_diff});
           }
 
-          // console.timeEnd("WASM Matrix Multiplication");
           displayMatrix(resultMatrix, "wasm-result");
         }
         const button_wasm = document.getElementById("wasm-calc");

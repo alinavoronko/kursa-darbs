@@ -1,39 +1,53 @@
-# Sample Wasm
+# WebAssembly and JavaScript performance comparison
 
-This should help get you started developing with Vite + WASM (Rust).
+This project is dedicated to the performance testing of WebAssembly and JavaScript programs.
+Here, you can find a minimal prototype that allows to measure the performance of a WebAssembly (Rust) and JavaScript matrix multiplication program in an automated way.
 
-## Recommended IDE Setup
+Tools used:
+- Rust
+- Cargo package manager
+- Node.js
+- Vite
+- Puppeteer
+- wasm-pack (installable via cargo)
+- rsw  (installable via cargo)
 
-[VSCode](https://code.visualstudio.com/) 
-
-For Rust use `rust-analyzer` plugin. 
 
 ## Project Setup
 
-Install Rust from: https://www.rust-lang.org/learn/get-started 
+As a pre-requisite, make sure you have the required tools installed.
 
-Node version should be above 16 LTS
-
+### Run DEV version of the project
+Note: This will make the matrix multiplication app available on port 5137 (which might require adaptation of the Puppeteer script)
+To run the matrix multiplication app:
 ```sh
-npm install
+npm run start
 ```
 
+Once it is up and available on http://localhost:5173/, run the performance tests:
+
 ```sh
-cargo install rsw
+npm run perf-test:js
 ```
 
+### Run PROD (highly optimized) version of the project
+Note: This will make the matrix multiplication app available on port 4137 (which might require adaptation of the Puppeteer script)
+
+First build the wasm binary:
 ```sh
-cargo install wasm-pack
+npm run rsw:b
 ```
 
-### Compile and Hot-Reload for Development
-
+Then, run the app:
 ```sh
-npm start
+npm run build-only
+```
+```sh
+npm run preview
 ```
 
-### Type-Check, Compile and Minify for Production
+Once it is up and available on http://localhost:4173/, run the performance tests:
 
 ```sh
-npm run build
+npm run perf-test:js
 ```

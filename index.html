@@ -8,7 +8,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <!-- TODO: getInput() = make distinguishable for each impl -->
     <div class="js-impl">
       <h1>[JS] Matrix Multiplication</h1>
 
@@ -66,8 +65,6 @@
 
       function handleJsMatrixMul() {
         const [matrix1, matrix2] = getMatrixInput("js-impl");
-        // will retrieve it
-        // console.time("JS Matrix Multiplication");
         const startTime = performance.now();
         const resultMatrix = performMatrixMultiplication(matrix1, matrix2);
         const endTime = performance.now();
@@ -77,7 +74,6 @@
           window.onCustomEvent({measuredTime});
         }
 
-        // console.timeEnd("JS Matrix Multiplication");
         displayMatrix(resultMatrix, "js-result");
       }
 

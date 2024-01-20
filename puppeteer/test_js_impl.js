@@ -1,11 +1,12 @@
 const puppeteer = require("puppeteer");
-const fs = require("fs");
 const matrixGen = require("./matrix-generator");
 
-// const path = require("path");
-const matrixCount = 13;
-const matrixSize = 4;
-const ignoreFirstN = 10;
+// Adjustable variables
+const matrixCount = 13; // number of test runs
+const matrixSize = 4; // will generate matrixSize*(matrixSize-1) matrices
+const ignoreFirstN = 10; // number of warm-up test runs that will be ignored
+
+//  Performance measuring script
 
 (async () => {
   let inputData = [];
@@ -16,33 +17,6 @@ const ignoreFirstN = 10;
 
   await runTestSuite("js", inputData);
   await runTestSuite("wasm", inputData);
-
-  // Generate 100 matrices that will be used for tests;
-
-  // const browser = await puppeteer.launch({ headless: false });
-
-  // const page = await browser.newPage();
-
-  // const timeStorage = [];
-
-  // await page.exposeFunction("onCustomEvent", (data) => {
-  //   timeStorage.push(data);
-  // });
-
-  // await page.goto("http://127.0.0.1:5173/");
-
-  // for (let i = 0; i < inputData.length; i++){
-  //   const input = inputData[i];
-  //   await testInput(page, input, 'js');
-  // }
-
-  // await browser.close();
-
-  // console.log("JS time results:");
-  // console.log(timeStorage);
-
-  // // Close the browser
-  // await browser.close();
 })();
 
 async function runTestSuite(impl, inputData) {
@@ -56,21 +30,20 @@ async function runTestSuite(impl, inputData) {
   });
 
   await page.goto("http://127.0.0.1:4173/");
-  // await page.goto("http://127.0.0.1:5173/");
+  // For dev build, replace the port 4137 ---> 5137
 
   for (let i = 0; i < inputData.length; i++) {
     const input = inputData[i];
     let res = await testInput(page, input, impl);
-    timeStorage[i] = {...res, ...timeStorage[i]};
+    timeStorage[i] = { ...res, ...timeStorage[i] };
   }
 
   console.log(`${impl.toUpperCase()} time results:`);
-  if(matrixCount > ignoreFirstN ) {
-    timeStorage.splice(0,ignoreFirstN);
+  if (matrixCount > ignoreFirstN) {
+    timeStorage.splice(0, ignoreFirstN);
   }
   console.log(JSON.stringify(timeStorage));
 
-  // Close the browser
   await browser.close();
 }
 
@@ -86,7 +59,7 @@ async function testInput(page, input, impl) {
     matrixGen.serializeMatrix(input.matrix2)
   );
 
-  // alternative: measure execution time including render of the results
+  // Measure execution time including render of the results
   const startTime = performance.now();
 
   await page.click(`#${impl}-calc`);
@@ -97,20 +70,16 @@ async function testInput(page, input, impl) {
 
   const timeWithRender = endTime - startTime;
 
-  // console.log(`Execution Time (ms) with result render: ${executionTime}`);
-
   const performanceMetrics = await page.metrics();
-  const heapSize = performanceMetrics.JSHeapUsedSize ;
+  const heapSize = performanceMetrics.JSHeapUsedSize;
+  // In order to convert to megaebytes
   // const heapMB = performanceMetrics.JSHeapUsedSize / (1024 * 1024);
   const deltaHeapSize = performanceMetrics.JSHeapUsedSize - initialHeapSize;
   const testRunResult = {
     heapSize,
     deltaHeapSize,
-    timeWithRender
-  }
-  // console.log(JSON.stringify(testRunResult))
-  // console.log("Heap size (MB): ", heapMB);
-  // console.log("Delta heap size (MB): ", deltaHeap / (1024 * 1024));
+    timeWithRender,
+  };
 
   // Clear the textareas for the next iteration
   await page.$eval(`.${impl}-impl #matrix1`, (input) => (input.value = ""));
